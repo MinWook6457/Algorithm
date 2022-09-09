@@ -26,7 +26,23 @@ ListNode *inser_first(ListNode *head, student st) // 노드 맨 앞에 삽입
 	p->link = head;
 	head = p;
 	return head;
+
 }
+ListNode *bubble_sort_grade(ListNode *head) { // 성적순 버블 정렬
+	ListNode *p, *q, *r; 
+
+	for (p = head;p != NULL;p = p->link) {
+		for (q = p;q != NULL;q = q->link) {
+			if (q->data.total > p->data.total) { // q의 총점이 p의 총점보다 큰 경우 swap
+				r = p->data; // p노드의 데이터를 버퍼에 저장
+				p->data = q->data; // q데이터를 p데이터에 삽입
+				q->data = r; // 버퍼에 있던 p노드의 데이터를 q노드에 삽입
+			}
+		}
+	}
+	return r;
+}
+/*
 void bubble_sort_grade(ListNode *head) { // 성적순 버블 정렬
 	ListNode *p, *q;
 	student tmp; // 노드의 데이터를 바꾸기 위한 버퍼
@@ -41,33 +57,35 @@ void bubble_sort_grade(ListNode *head) { // 성적순 버블 정렬
 		}
 	}
 }
-void bubble_sort_number(ListNode *head) { // 학번순 버블 정렬
-	ListNode *p, *q;
-	student tmp;
+*/
+ListNode  *bubble_sort_number(ListNode *head) { // 학번순 버블 정렬
+	ListNode *p, *q, *r;
 
 	for (p = head;p != NULL;p = p->link) { // 노드 p는 머리노드 부터 검사
 		for (q = p;q != NULL;q = q->link) { // q는 p노드를 따라감
 			if (q->data.number < p->data.number) { // q노드의 학번이 p노드의 학번보다 작은경우 swap
-				tmp = p->data;
+				r = p->data;
 				p->data = q->data;
-				q->data = tmp;
+				q->data = r;
 			}
 		}
 	}
+	return r;
 }
-void bubble_sort_name(ListNode *head) { // 이름순 버블 정렬 strcmp 함수 사용
-	ListNode *p, *q;
-	student tmp;
+
+ListNode *bubble_sort_name(ListNode *head) { // 이름순 버블 정렬 strcmp 함수 사용
+	ListNode *p, *q, *r;
 
 	for (p = head;p != NULL;p = p->link) { // 노드 p는 머리노드 부터 검사
 		for (q = p;q != NULL;q = q->link) { // q는 p노드를 따라감
 			if (strcmp(p->data.name,q->data.name)>	0) { // q노드의 학번이 p노드의 학번보다 작은경우 swap
-				tmp = p->data; 
+				r = p->data;
 				p->data = q->data;
-				q->data = tmp;
+				q->data = r;
 			}
 		}
 	}
+	return r;
 }
 void display(ListNode *head)
 {
