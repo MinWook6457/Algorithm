@@ -8,25 +8,127 @@ typedef struct TreeNode {
 	struct TreeNode *left, *right;
 }TreeNode;
 typedef TreeNode* element;
+typedef struct StackNode { // 연결리스트 스택 정의
+	element data;
+	struct StackNode *link;
+}StackNode;
+
 typedef struct QueueNode // 연결리스트 큐 정의
 {
 	element data;
 	struct QueueNode* link;
 }QueueNode;
 
+typedef struct {
+	StackNode *top;
+}Stack;
+
 typedef struct Queue
 {
 	QueueNode* front, *rear;
 }Queue;
-
+void StackInit(Stack *s) {
+	s->top = NULL;
+}
 void QueueInit(Queue* q) // 큐 초기화
 {
 	q->front = q->rear = NULL;
 }
+// 스택 공백 검사
+int is_empty_stack(Stack *s) {
+	return s->top == NULL;
+}
 // 큐 공백 검사
-int	is_empty(Queue* q)
+int	is_empty_Queue(Queue* q)
 {
 	return q->front == NULL;
+}
+//스택에 데이터 삽입
+int nodeCount;
+void push(StackNode **top, element x)       // 처음에 삽입
+{
+	// 힙에 새로운 노드 할당
+	StackNode *node = (StackNode *)malloc(sizeof(StackNode));
+
+	// Stack(힙)이 가득 찼는지 확인합니다. 그런 다음 요소를 삽입하면
+	// Stack 오버플로로 이어짐
+	if (!node)
+	{
+		printf("메모리 할당 실패\n");
+		exit(-1);
+	}
+	// 할당된 노드에 데이터 설정
+	node->data = x;
+
+	// 새 노드의 .next 포인터가 현재를 가리키도록 설정합니다.
+	// 리스트의 최상위 노드
+	node->link = *top;
+
+	// 상단 포인터 업데이트
+	*top = node;
+
+	// Stack의 크기를 1만큼 증가
+	nodeCount += 1;
+}
+element peek(StackNode *top)
+{
+	// 빈 Stack 확인
+	if (!is_empty_stack(top)) {
+		return top->data;
+	}
+	else {
+		printf("The stack is empty\n");
+		exit(EXIT_FAILURE);
+	}
+}
+// 스택 데이터 삭제
+element pop(StackNode **top)        // 처음부터 제거
+{
+	StackNode *node;
+	// Stack 언더플로 확인
+	if (*top == NULL)
+	{
+		printf("Stack Underflow\n");
+		exit(EXIT_FAILURE);
+	}
+	// 최상위 노드의 데이터를 기록
+	element x = peek(*top);
+	//printf("Removing %d\n", x->data);
+	node = *top;
+	// 다음 노드를 가리키도록 위쪽 포인터를 업데이트
+	*top = (*top)->link;
+	// Stack의 크기를 1 감소
+	nodeCount -= 1;
+	// 할당된 메모리 해제
+	free(node);
+	return x;
+}
+// 반복적 순회 스택
+// 트리에서 중위 순회를 수행하는 반복 함수
+void inorderIterative(TreeNode* root)
+{
+    // 빈 Stack 생성
+	Stack *s = (Stack *)malloc(sizeof(Stack));
+	StackInit(s);
+    // 현재 노드가 null이고 Stack도 비어 있으면 완료
+    while (!is_empty_stack(s) || root != NULL)
+    {
+        // 현재 노드가 존재하면 Stack에 푸시(지연)
+        // 왼쪽 자식으로 이동
+        if (root != NULL)
+        {
+			push(&s, root);
+			root = root->left;
+        }
+        else {
+            // 그렇지 않으면 현재 노드가 null이면 Stack에서 요소를 팝합니다.
+            // 출력하고 마지막으로 현재 노드를 오른쪽 자식으로 설정
+			root = pop(&s);
+			printf("%d ", root->data);
+ 
+			root = root->right;
+        }
+    }
 }
 // 큐에 데이터 삽입
 void enqueue(Queue* q, element data)
@@ -34,7 +136,7 @@ void enqueue(Queue* q, element data)
 	QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
 	newNode->link = NULL;
 	newNode->data = data;
-	if (is_empty(q)) {
+	if (is_empty_Queue(q)) {
 		q->front = newNode;
 		q->rear = newNode;
 	}
@@ -51,12 +153,6 @@ void dequeue(Queue* q)
 	q->front = q->front->link;	//	front를 다음 위치로 이동 : 연결리스트 이용
 	free(pDelNode);
 }
-// 큐에 있는 모드 데이터 삭제
-void DeleteAllNode(Queue* q)
-{
-	while (!is_empty(q))
-		dequeue(q);
-}
 // 레벨순회
 void LevelTraversal(TreeNode* pRoot)
 {
@@ -65,7 +161,7 @@ void LevelTraversal(TreeNode* pRoot)
 
 	QueueInit(&q);		// 큐를 초기화
 	enqueue(&q, pRoot);	// 루트 노드를 큐에 저장
-	while (!is_empty(&q))
+	while (!is_empty_Queue(&q))
 	{
 		p = q.front->data;	// 노드 p가 q가 가지고 있는 데이터를 가리킴
 		printf("%d ", p->data);
@@ -73,10 +169,9 @@ void LevelTraversal(TreeNode* pRoot)
 			enqueue(&q, p->left);
 		if (p->right != NULL)
 			enqueue(&q, p->right);
-
 		dequeue(&q); // 큐에서 현재 노드를 제거
 	}
-	DeleteAllNode(&q);
+	// DeleteAllNode(&q);
 }
 
 TreeNode *newNode(int item) {
@@ -134,28 +229,28 @@ void insert_node(TreeNode **root, int item) {
 		*root = n;
 	}
 }
-void preorder(TreeNode* temp) { // 전위 순회
+void preorder(TreeNode* temp) { //전위 순회
 	if (temp != NULL) {
 		printf("[%d] ", temp->data);
 		preorder(temp->left);
 		preorder(temp->right);
 	}
 }
-void inorder(TreeNode* temp) { // 중위 순회
+void inorder(TreeNode* temp) { //중위 순회
 	if (temp != NULL) {
 		inorder(temp->left);
 		printf("[%d] ", temp->data);
 		inorder(temp->right);
 	}
 }
-void postorder(TreeNode* temp) { // 후위 순회
+void postorder(TreeNode* temp) { //후위 순회
 	if (temp != NULL) {
 		postorder(temp->left);
 		postorder(temp->right);
 		printf("[%d] ", temp->data);
 	}
 }
-int get_height(TreeNode *node) { // 노드의 높이 구하는 함수
+int get_height(TreeNode *node) { //노드의 높이 구하는 함수
 	if (node == NULL) {
 		return 0;
 	}
@@ -194,6 +289,7 @@ void main() {
 	clock_t start4, end4; // 중위 순회 시간 측정을 위한 변수
 	clock_t start5, end5; // 후위 순회 시간 측정을 위한 변수
 	clock_t start6, end6; // 레벨 순회 시간 측정을 위한 변수
+	clock_t start7, end7; // 반복적 순회 시간 측정을 위한 변수
 	FILE *fp;
 	TreeNode *root1 = NULL;
 	TreeNode *root2 = NULL;
@@ -233,12 +329,12 @@ void main() {
 	printf("\n[전위순회 걸린시간 : %f]\n", (float)(end3 - start3) / CLOCKS_PER_SEC);
 	*/
 
-	/*
+	
 	start4 = clock();
 	inorder(root1);
 	end4 = clock();
 	printf("\n[중위순회 걸린시간 : %f]\n", (float)(end4 - start4) / CLOCKS_PER_SEC);
-	*/
+	
 
 	/*
 	start5 = clock();
@@ -247,10 +343,17 @@ void main() {
 	printf("\n[후위순회 걸린시간 : %f]\n", (float)(end5 - start5) / CLOCKS_PER_SEC);
 
 	*/
+
+	/*
 	start6 = clock();
 	LevelTraversal(root1);
 	end6 = clock();
 	printf("\n[레벨순회 걸린시간 : %f]\n", (float)(end6 - start6) / CLOCKS_PER_SEC);
+	*/
+	start7 = clock();
+	inorderIterative(root1);
+	end7 = clock();
+	printf("\n[반복적순회 걸린시간 : %f]\n", (float)(end7 - start7) / CLOCKS_PER_SEC);
 	delete_node(root1); // 트리 노드 해제
 	delete_node(root2); // 트리 노드 해제
 	fclose(fp);
