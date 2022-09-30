@@ -65,7 +65,7 @@ void LevelTraversal(TreeNode* pRoot)
 
 	QueueInit(&q);		// 큐를 초기화
 	enqueue(&q, pRoot);	// 루트 노드를 큐에 저장
-	while (!QueueIsEmpty(&q))
+	while (!is_empty(&q))
 	{
 		p = q.front->data;	// 노드 p가 q가 가지고 있는 데이터를 가리킴
 		printf("%d ", p->data);
