@@ -90,20 +90,20 @@ void dfs_interative(GraphType *g, int v) {
 	for (int i = 0; i < MAX_VERTICES; i++) {
 		visited[i] = false;
 	}
-	visited[v] = true;
 	push(s, v);
+	printf("정점 %d -> ", v);
 	int temp;
 	while (!is_empty(s)) {
+		visited[v] = true;
 		for (int w = 0; w < g->n; w++) {
 			if (g->adj_mat[v][w] && !visited[w]) {
+				printf("정점 %d -> ", w);
 				push(s, v);
 				visited[w] = true;
 				v = w;
 			}
-			else {
-				v = pop(s);
-			}
 		}
+		temp = pop(s);
 	}
 }
 
@@ -138,6 +138,7 @@ void main() {
 	}
 	printf("깊이 우선 탐색\n");
 	dfs_interative(g, 0);
+	printf("\n");
 	print_adj(g);
 	
 
