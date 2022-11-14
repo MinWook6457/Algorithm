@@ -90,7 +90,7 @@ int topo_sort(GraphType* g) {
 	StackType s;
 	GraphNode* node;
 
-	int* in_degree = (int *)malloc(sizeof(g->n * sizeof(int)));
+	int* in_degree = (int *)malloc(g->n * sizeof(int));
 	if (in_degree == NULL) {
 		fprintf(stderr, "메모리 할당 실패\n");
 		exit(1);
@@ -127,7 +127,7 @@ int topo_sort(GraphType* g) {
 			node = node->link;
 		}
 	}
-	// free(in_degree); <- 메모리 해제시 오류 발생하여 주석 처리한 상태임. 
+	free(in_degree);
 	printf("\n");
 	return (i == g->n);
 }
